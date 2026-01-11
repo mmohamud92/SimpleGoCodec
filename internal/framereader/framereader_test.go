@@ -86,7 +86,7 @@ func TestFrameReader_InvalidDimensionsErrors(t *testing.T) {
 	_, err := NewFrameReader(r, w, h)
 
 	if err == nil {
-		t.Errorf("There should be an error of type %v", ErrInvalidDimensions)
+		t.Errorf("There should be an error of type %v, got nil", ErrInvalidDimensions)
 	}
 	if !errors.Is(err, ErrInvalidDimensions) {
 		t.Errorf("Error should be %v", ErrInvalidDimensions)
