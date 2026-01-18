@@ -92,3 +92,13 @@ func TestRGB24ToYUV420_4x4TwoBlocks(t *testing.T) {
 		t.Errorf("V mismatch: got %v want %v", gotV, wantV)
 	}
 }
+
+func TestRGB24ToYUV420_OddDimensions(t *testing.T) {
+	w, h := 3, 2
+	rgb := make([]byte, w*h*3)
+
+	_, _, _, err := RGB24ToYUV420(rgb, w, h)
+	if err == nil {
+		t.Fatalf("expected error for odd dimensions")
+	}
+}

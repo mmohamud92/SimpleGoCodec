@@ -26,6 +26,8 @@ func RGB24ToYUV420(rgb []byte, w, h int) (y, u, v []byte, err error) {
 	u = make([]byte, cw*ch)
 	v = make([]byte, cw*ch)
 
+	offsets := [][2]int{{0, 0}, {1, 0}, {0, 1}, {1, 1}}
+
 	for by := range ch {
 		for bx := range cw {
 			px := bx * 2
@@ -34,33 +36,17 @@ func RGB24ToYUV420(rgb []byte, w, h int) (y, u, v []byte, err error) {
 			sumU := 0
 			sumV := 0
 
-			// pixel (px, py)
-			base := (py*w + px) * 3
-			Y, U, V := RGBToYUV(rgb[base], rgb[base+1], rgb[base+2])
-			y[py*w+px] = Y
-			sumU += int(U)
-			sumV += int(V)
+			for _, off := range offsets {
+				x := px + off[0]
+				ypix := py + off[1]
 
-			// pixel (px + 1, py)
-			base = (py*w + px + 1) * 3
-			Y, U, V = RGBToYUV(rgb[base], rgb[base+1], rgb[base+2])
-			y[py*w+px+1] = Y
-			sumU += int(U)
-			sumV += int(V)
+				base := (ypix*w + x) * 3
+				Y, U, V := RGBToYUV(rgb[base], rgb[base+1], rgb[base+2])
 
-			// pixel (px, py + 1)
-			base = ((py+1)*w + px) * 3
-			Y, U, V = RGBToYUV(rgb[base], rgb[base+1], rgb[base+2])
-			y[(py+1)*w+px] = Y
-			sumU += int(U)
-			sumV += int(V)
-
-			// pixel (px + 1, py + 1)
-			base = ((py+1)*w + px + 1) * 3
-			Y, U, V = RGBToYUV(rgb[base], rgb[base+1], rgb[base+2])
-			y[(py+1)*w+px+1] = Y
-			sumU += int(U)
-			sumV += int(V)
+				y[ypix*w+x] = Y
+				sumU += int(U)
+				sumV += int(V)
+			}
 
 			u[by*cw+bx] = byte(roundClampToByte(float64(sumU) / 4.0))
 			v[by*cw+bx] = byte(roundClampToByte(float64(sumV) / 4.0))
